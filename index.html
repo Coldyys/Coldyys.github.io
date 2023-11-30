@@ -12,19 +12,33 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(to right, #00FFFF, #800080); /* Tyrkysová do purpurového gradientu */
+            background: linear-gradient(to right, #1a1a1a, #006666); /* Tmavě zelená a tmavě modrá vánoční motiv */
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
         }
 
         .container {
             text-align: center;
             padding: 20px;
             border-radius: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            background-color: rgba(26, 26, 26, 0.9); /* Průhledná tmavě zelená pozadí */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .container.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         h1 {
-            color: #333;
+            color: #ffcc00; /* Žlutá barva pro vánoční motiv */
+            margin-bottom: 20px;
+            font-size: 28px;
+            letter-spacing: 1px;
+            animation: fadeIn 1s ease;
         }
 
         input {
@@ -32,19 +46,39 @@
             margin: 10px 0;
             width: 100%;
             box-sizing: border-box;
+            border: 1px solid #006666; /* Tmavě modrá barva ohraničení */
+            border-radius: 5px;
+            color: #1a1a1a; /* Tmavě zelená barva textu */
+            background-color: #ffffff; /* Bílá barva pozadí */
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #004d4d; /* Sytě modrá barva ohraničení po focusu */
+            background-color: #f2f2f2; /* Světle šedá barva pozadí po focusu */
         }
 
         button {
             padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
+            background-color: #ffcc00; /* Žlutá barva pro vánoční motiv */
+            color: #1a1a1a; /* Tmavě zelená barva textu */
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #e6b800; /* Tmavě žlutá barva při hoveru pro vánoční motiv */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -53,47 +87,86 @@
         <h1>Morse Code Converter</h1>
         <input type="text" id="inputText" placeholder="Zadejte text v Morseově abecedě">
         <button onclick="convertMorse()">Převést</button>
+        <button onclick="addDot()">Přidat tečku</button>
+        <button onclick="addDash()">Přidat čárku</button>
+        <button onclick="addSpace()">Přidat mezeru</button>
+        <button onclick="removeLast()">Odebrat poslední znak</button>
     </div>
 
     <script>
+        // Funkce pro přidání třídy "show" po načtení stránky
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector(".container").classList.add("show");
+        });
+
         function convertMorse() {
             const inputText = document.getElementById('inputText').value.trim();
 
-            // Regulární výraz pro kontrolu, zda obsahuje pouze znaky Morseovy abecedy
-            const morseRegex = /^[.-\s]+$/;
+            // Rozdělit Morseovu abecedu na slova
+            const morseWords = inputText.split('/');
 
-            if (morseRegex.test(inputText)) {
-                // Převod Morseovy abecedy na písmeno
-                const convertedText = morseToLetter(inputText);
+            // Převod každého slova Morseovy abecedy na písmeno
+            const convertedWords = morseWords.map(word => morseWordToLetter(word));
 
-                // Zobrazit výsledek uživateli pomocí alertu
-                alert(`Převedený text: ${convertedText}`);
-            } else {
-                alert('Zadali jste neplatné znaky. Použijte pouze znaky Morseovy abecedy.');
-            }
+            // Spojení písmen do výsledného textu
+            const convertedText = convertedWords.join(' ');
+
+            // Zobrazit výsledek uživateli pomocí alertu
+            alert(`Převedený text: ${convertedText}`);
         }
 
-        function morseToLetter(morseCode) {
-            // Zde můžete implementovat logiku převodu Morseovy abecedy na písmeno
+        function morseWordToLetter(morseWord) {
+            // Zde můžete implementovat logiku převodu Morseovy abecedy na písmeno pro celé slovo
             // (Můžete použít tabulku, slovník nebo jiný způsob mapování)
 
-            // Pro jednoduchost zde příklad mapování:
+            // Pro kompletní mapování anglické abecedy na Morseovu abecedu:
             const morseToLetterMap = {
-                '.-': 'A',
-                '-...': 'B',
+                '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D',
+                '.': 'E', '..-.': 'F', '--.': 'G', '....': 'H',
+                '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L',
+                '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P',
+                '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T',
+                '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X',
+                '-.--': 'Y', '--..': 'Z',
+                '-----': '0', '.----': '1', '..---': '2', '...--': '3',
+                '....-': '4', '.....': '5', '-....': '6', '--...': '7',
+                '---..': '8', '----.': '9',
+                '.-.-.-': '.', '--..--': ',', '/': ' ',
+                '-...-': '=', '---...': ':', '..--..': '?', '.----.': "'",
+                '-..-.': '/', '-.-.--': '!', '-....-': '-', '-..-.': '/',
+                '-.--.': '(', '-.--.-': ')', '-....-': '-', '..-..-': ' ', /* mezera */
+                '...-.-': '#', '.-.-.': '+', '-.-.-.': ';', '-...-': '=',
+                '.-.-.': '+', '-....-': '-', '..--.-': '_', '...---...': 'SOS'
                 // další mapování
             };
 
-            // Rozdělit Morseovu abecedu na jednotlivé znaky
-            const morseWords = morseCode.split(' ');
+            // Rozdělit Morseovu abecedu na jednotlivá písmena
+            const morseLetters = morseWord.split(' ');
 
-            // Převod každého znaku Morseovy abecedy na písmeno
-            const convertedLetters = morseWords.map(word => morseToLetterMap[word]);
+            // Převod každého písmene Morseovy abecedy na písmeno
+            const convertedLetters = morseLetters.map(letter => morseToLetterMap[letter]);
 
-            // Spojení písmen do výsledného textu
-            const convertedText = convertedLetters.join('');
+            // Spojení písmen do výsledného slova
+            const convertedWord = convertedLetters.join('');
 
-            return convertedText;
+            return convertedWord;
+        }
+
+        function addDot() {
+            document.getElementById('inputText').value += '. ';
+        }
+
+        function addDash() {
+            document.getElementById('inputText').value += '- ';
+        }
+
+        function addSpace() {
+            document.getElementById('inputText').value += '/ ';
+        }
+
+        function removeLast() {
+            const inputText = document.getElementById('inputText');
+            inputText.value = inputText.value.slice(0, -1);
         }
     </script>
 </body>
